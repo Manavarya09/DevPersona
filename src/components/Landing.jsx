@@ -5,60 +5,12 @@ export default function Landing({ onGenerate }) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault()
     if (!username.trim()) return
-
-    setLoading(true)
+    
     setError('')
-
-    try {
-      const cleanUsername = username.replace('https://github.com/', '').replace('/', '').trim()
-      const response = await fetch(`https://api.github.com/users/${cleanUsername}`)
-      
-      if (!response.ok) {
-        throw new Error('User not found')
-      }
-
-      const userData = await response.json()
-      
-      const reposResponse = await fetch(`https://api.github.com/users/${cleanUsername}/repos?sort=updated&per_page=50`)
-      const repos = reposResponse.ok ? await reposResponse.json() : []
-
-      const processedData = {
-        username: userData.login,
-        name: userData.name || userData.login,
-        bio: userData.bio || 'Developer',
-        avatar: userData.avatar_url,
-        location: userData.location,
-        blog: userData.blog,
-        company: userData.company,
-        repos: repos.map(repo => ({
-          id: repo.id,
-          name: repo.name,
-          description: repo.description,
-          language: repo.language,
-          stars: repo.stargazers_count,
-          forks: repo.fork ? 'Forked' : null,
-          url: repo.html_url,
-          topics: repo.topics || [],
-          updated: repo.updated_at
-        })).sort((a, b) => b.stars - a.stars).slice(0, 10),
-        publicRepos: userData.public_repos,
-        followers: userData.followers,
-        following: userData.following,
-        created: userData.created_at
-      }
-
-      const languages = [...new Set(repos.map(r => r.language).filter(Boolean))]
-      processedData.languages = languages
-
-      onGenerate(processedData)
-    } catch (err) {
-      setError(err.message || 'Failed to fetch user data')
-    } finally {
-      setLoading(false)
-    }
+    onGenerate(username)
   }
 
   return (
@@ -103,20 +55,9 @@ export default function Landing({ onGenerate }) {
 
             <button
               type="submit"
-              disabled={loading}
-              className="w-full py-4 px-6 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-semibold rounded-xl transition-all transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full py-4 px-6 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-semibold rounded-xl transition-all transform hover:scale-[1.02]"
             >
-              {loading ? (
-                <span className="flex items-center justify-center gap-2">
-                  <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                  </svg>
-                  Fetching your data...
-                </span>
-              ) : (
-                'Generate Portfolio'
-              )}
+              Generate Portfolio
             </button>
           </form>
 
