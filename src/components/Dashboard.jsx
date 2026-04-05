@@ -1,11 +1,11 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 const themes = [
-  { id: 'developer', name: 'Developer', color: 'from-cyan-500 to-blue-600', icon: '💻' },
-  { id: 'startup', name: 'Startup', color: 'from-orange-500 to-pink-600', icon: '🚀' },
-  { id: 'designer', name: 'Designer', color: 'from-purple-500 to-pink-500', icon: '🎨' },
-  { id: 'resume', name: 'Resume', color: 'from-slate-500 to-slate-700', icon: '📄' },
-  { id: 'hacker', name: 'Hacker', color: 'from-green-500 to-emerald-700', icon: '⚡' },
+  { id: 'developer', name: 'Developer', color: 'from-cyan-500 to-blue-600', icon: '💻', description: 'Clean & professional' },
+  { id: 'startup', name: 'Startup', color: 'from-orange-500 to-pink-600', icon: '🚀', description: 'Bold & energetic' },
+  { id: 'designer', name: 'Designer', color: 'from-purple-500 to-pink-500', icon: '🎨', description: 'Creative & artistic' },
+  { id: 'resume', name: 'Resume', color: 'from-slate-500 to-slate-700', icon: '📄', description: 'Minimal & formal' },
+  { id: 'hacker', name: 'Hacker', color: 'from-green-500 to-emerald-700', icon: '⚡', description: 'Terminal style' },
 ]
 
 export default function Dashboard({ userData, theme, onThemeChange, onViewPortfolio, onEdit, onBack }) {
@@ -13,6 +13,14 @@ export default function Dashboard({ userData, theme, onThemeChange, onViewPortfo
   const [editedProjects, setEditedProjects] = useState(userData?.repos || [])
   const [editedBio, setEditedBio] = useState(userData?.bio || '')
   const [editedName, setEditedName] = useState(userData?.name || '')
+  const [showShareModal, setShowShareModal] = useState(false)
+  const [copySuccess, setCopySuccess] = useState(false)
+
+  useEffect(() => {
+    if (userData?.repos) {
+      setEditedProjects(userData.repos)
+    }
+  }, [userData])
 
   const updateProject = (id, field, value) => {
     setEditedProjects(prev => prev.map(p => p.id === id ? { ...p, [field]: value } : p))
@@ -33,6 +41,13 @@ export default function Dashboard({ userData, theme, onThemeChange, onViewPortfo
     })
   }
 
+  const copyShareLink = () => {
+    const link = `${window.location.origin}/share/${userData?.username}`
+    navigator.clipboard.writeText(link)
+    setCopySuccess(true)
+    setTimeout(() => setCopySuccess(false), 2000)
+  }
+
   const getLanguageColor = (lang) => {
     const colors = {
       JavaScript: '#f7df1e',
@@ -51,6 +66,34 @@ export default function Dashboard({ userData, theme, onThemeChange, onViewPortfo
       Kotlin: '#A97BFF'
     }
     return colors[lang] || '#6b7280'
+  }
+
+  const getDevType = () => {
+    const langs = userData?.languages || []
+    if (langs.includes('Python') && !langs.includes('JavaScript')) return 'Backend Developer'
+    if (langs.includes('JavaScript') && langs.includes('TypeScript')) return 'Full Stack Developer'
+    if (langs.includes('Go') || langs.includes('Rust')) return 'Systems Engineer'
+    if (langs.includes('Swift') || langs.includes('Kotlin')) return 'Mobile Developer'
+    if (langs.includes('HTML') || langs.includes('CSS')) return 'Frontend Developer'
+    return 'Software Developer'
+  }
+
+  const getLevel = () => {
+    const repos = userData?.repos?.length || 0
+    const stars = userData?.stats?.totalStars || 0
+    if (repos > 20 || stars > 100) return 'Senior'
+    if (repos > 8 || stars > 20) return 'Mid-Level'
+    return 'Junior'
+  }
+
+  const getStrengths = () => {
+    const langs = userData?.languages || []
+    const strengths = []
+    if (langs.length > 5) strengths.push('Polyglot')
+    const starCount = userData?.repos?.filter(r => r.stars > 0).length || 0
+    if (starCount > 3) strengths.push('Popular Projects')
+    if (userData?.repos?.some(r => r.topics?.length > 0)) strengths.push('Well-Documented')
+    return strengths.length > 0 ? strengths : ['Consistent Builder']
   }
 
   return (
@@ -100,6 +143,30 @@ export default function Dashboard({ userData, theme, onThemeChange, onViewPortfo
                 <span className="text-slate-500">repos</span>
                 <span className="text-cyan-400 font-semibold">{userData?.followers}</span>
                 <span className="text-slate-500">followers</span>
+              </div>
+            </div>
+
+            <div className="bg-slate-800/50 rounded-2xl p-6 border border-slate-700/50">
+              <h3 className="text-lg font-semibold text-white mb-4">AI Insights</h3>
+              <div className="space-y-4">
+                <div className="p-3 bg-slate-900/50 rounded-lg">
+                  <div className="text-xs text-slate-500 mb-1">Developer Type</div>
+                  <div className="text-sm text-cyan-400 font-medium">{getDevType()}</div>
+                </div>
+                <div className="p-3 bg-slate-900/50 rounded-lg">
+                  <div className="text-xs text-slate-500 mb-1">Experience Level</div>
+                  <div className="text-sm text-green-400 font-medium">{getLevel()}</div>
+                </div>
+                <div className="p-3 bg-slate-900/50 rounded-lg">
+                  <div className="text-xs text-slate-500 mb-1">Strengths</div>
+                  <div className="flex flex-wrap gap-1 mt-1">
+                    {getStrengths().map(s => (
+                      <span key={s} className="text-xs px-2 py-1 bg-purple-500/20 text-purple-400 rounded">
+                        {s}
+                      </span>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -158,6 +225,31 @@ export default function Dashboard({ userData, theme, onThemeChange, onViewPortfo
                   <span className="text-slate-400">Languages Used</span>
                   <span className="text-white font-semibold">{userData?.languages?.length}</span>
                 </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-400">Consistency</span>
+                  <span className="text-green-400 font-semibold">High</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-slate-800/50 rounded-2xl p-6 border border-slate-700/50">
+              <h3 className="text-lg font-semibold text-white mb-4">Quick Actions</h3>
+              <div className="space-y-2">
+                <button 
+                  onClick={() => setShowShareModal(true)}
+                  className="w-full p-3 bg-slate-700/50 hover:bg-slate-700 rounded-lg text-left text-slate-300 hover:text-white transition-colors flex items-center gap-3"
+                >
+                  <span>🔗</span>
+                  <span>Share Portfolio</span>
+                </button>
+                <button className="w-full p-3 bg-slate-700/50 hover:bg-slate-700 rounded-lg text-left text-slate-300 hover:text-white transition-colors flex items-center gap-3">
+                  <span>📄</span>
+                  <span>Download Resume</span>
+                </button>
+                <button className="w-full p-3 bg-slate-700/50 hover:bg-slate-700 rounded-lg text-left text-slate-300 hover:text-white transition-colors flex items-center gap-3">
+                  <span>📦</span>
+                  <span>Export HTML</span>
+                </button>
               </div>
             </div>
           </div>
@@ -267,7 +359,10 @@ export default function Dashboard({ userData, theme, onThemeChange, onViewPortfo
                 {activeTab === 'export' && (
                   <div className="space-y-4">
                     <div className="grid grid-cols-2 gap-4">
-                      <button className="p-6 bg-slate-900 rounded-xl border border-slate-700 hover:border-cyan-500 transition-colors text-left group">
+                      <button 
+                        onClick={() => setShowShareModal(true)}
+                        className="p-6 bg-slate-900 rounded-xl border border-slate-700 hover:border-cyan-500 transition-colors text-left group"
+                      >
                         <div className="text-2xl mb-2">🌐</div>
                         <div className="text-white font-medium">Live Website</div>
                         <div className="text-sm text-slate-400 mt-1">Share your portfolio</div>
@@ -295,6 +390,35 @@ export default function Dashboard({ userData, theme, onThemeChange, onViewPortfo
           </div>
         </div>
       </div>
+
+      {showShareModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-slate-800 rounded-2xl p-6 max-w-md w-full mx-4 border border-slate-700">
+            <h3 className="text-xl font-semibold text-white mb-4">Share Your Portfolio</h3>
+            <p className="text-slate-400 mb-4">Share this link with others to showcase your portfolio</p>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={`devpersona.vercel.app/${userData?.username}`}
+                readOnly
+                className="flex-1 bg-slate-900 border border-slate-600 rounded-lg px-4 py-3 text-white"
+              />
+              <button
+                onClick={copyShareLink}
+                className="px-4 py-3 bg-cyan-500 text-white rounded-lg hover:bg-cyan-400 transition-colors"
+              >
+                {copySuccess ? '✓' : 'Copy'}
+              </button>
+            </div>
+            <button
+              onClick={() => setShowShareModal(false)}
+              className="mt-4 w-full py-2 text-slate-400 hover:text-white transition-colors"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
