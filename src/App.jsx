@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import Landing from './components/Landing'
 import Dashboard from './components/Dashboard'
 import Portfolio from './components/Portfolio'
@@ -90,10 +90,6 @@ function App() {
 
   const handleThemeChange = (newTheme) => {
     setTheme(newTheme)
-  }
-
-  const handleViewResume = () => {
-    setView('resume')
   }
 
   if (loading) {
