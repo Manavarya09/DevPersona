@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import Landing from './components/Landing'
 import Dashboard from './components/Dashboard'
 import Portfolio from './components/Portfolio'
+import Resume from './components/Resume'
 import Loading from './components/Loading'
 import Error from './components/Error'
 
@@ -79,12 +80,20 @@ function App() {
     setView('portfolio')
   }
 
+  const handleViewResume = () => {
+    setView('resume')
+  }
+
   const handleEdit = (newData) => {
     setEditedData(newData)
   }
 
   const handleThemeChange = (newTheme) => {
     setTheme(newTheme)
+  }
+
+  const handleViewResume = () => {
+    setView('resume')
   }
 
   if (loading) {
@@ -104,6 +113,7 @@ function App() {
           theme={theme}
           onThemeChange={handleThemeChange}
           onViewPortfolio={handleViewPortfolio}
+          onViewResume={handleViewResume}
           onEdit={handleEdit}
           onBack={() => setView('landing')}
         />
@@ -114,6 +124,13 @@ function App() {
           theme={theme}
           onBack={() => setView('dashboard')}
           onEdit={() => setView('dashboard')}
+        />
+      )}
+      {view === 'resume' && (
+        <Resume
+          userData={editedData}
+          theme={theme}
+          onBack={() => setView('dashboard')}
         />
       )}
     </div>

@@ -8,7 +8,7 @@ const themes = [
   { id: 'hacker', name: 'Hacker', color: 'from-green-500 to-emerald-700', icon: '⚡', description: 'Terminal style' },
 ]
 
-export default function Dashboard({ userData, theme, onThemeChange, onViewPortfolio, onEdit, onBack }) {
+export default function Dashboard({ userData, theme, onThemeChange, onViewPortfolio, onViewResume, onEdit, onBack }) {
   const [activeTab, setActiveTab] = useState('projects')
   const [editedProjects, setEditedProjects] = useState(userData?.repos || [])
   const [editedBio, setEditedBio] = useState(userData?.bio || '')
@@ -118,12 +118,20 @@ export default function Dashboard({ userData, theme, onThemeChange, onViewPortfo
               </span>
             </div>
           </div>
-          <button
-            onClick={onViewPortfolio}
-            className="px-6 py-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-lg font-medium hover:opacity-90 transition-opacity"
-          >
-            View Portfolio
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={onViewResume}
+              className="px-4 py-2 bg-slate-700 text-white rounded-lg font-medium hover:bg-slate-600 transition-opacity"
+            >
+              Resume
+            </button>
+            <button
+              onClick={onViewPortfolio}
+              className="px-6 py-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-lg font-medium hover:opacity-90 transition-opacity"
+            >
+              View Portfolio
+            </button>
+          </div>
         </div>
       </header>
 
@@ -242,7 +250,10 @@ export default function Dashboard({ userData, theme, onThemeChange, onViewPortfo
                   <span>🔗</span>
                   <span>Share Portfolio</span>
                 </button>
-                <button className="w-full p-3 bg-slate-700/50 hover:bg-slate-700 rounded-lg text-left text-slate-300 hover:text-white transition-colors flex items-center gap-3">
+                <button 
+                  onClick={onViewResume}
+                  className="w-full p-3 bg-slate-700/50 hover:bg-slate-700 rounded-lg text-left text-slate-300 hover:text-white transition-colors flex items-center gap-3"
+                >
                   <span>📄</span>
                   <span>Download Resume</span>
                 </button>
@@ -367,7 +378,10 @@ export default function Dashboard({ userData, theme, onThemeChange, onViewPortfo
                         <div className="text-white font-medium">Live Website</div>
                         <div className="text-sm text-slate-400 mt-1">Share your portfolio</div>
                       </button>
-                      <button className="p-6 bg-slate-900 rounded-xl border border-slate-700 hover:border-cyan-500 transition-colors text-left group">
+                      <button 
+                        onClick={onViewResume}
+                        className="p-6 bg-slate-900 rounded-xl border border-slate-700 hover:border-cyan-500 transition-colors text-left group"
+                      >
                         <div className="text-2xl mb-2">📄</div>
                         <div className="text-white font-medium">PDF Resume</div>
                         <div className="text-sm text-slate-400 mt-1">Download as PDF</div>
@@ -377,7 +391,10 @@ export default function Dashboard({ userData, theme, onThemeChange, onViewPortfo
                         <div className="text-white font-medium">Static Export</div>
                         <div className="text-sm text-slate-400 mt-1">Download HTML/CSS</div>
                       </button>
-                      <button className="p-6 bg-slate-900 rounded-xl border border-slate-700 hover:border-cyan-500 transition-colors text-left group">
+                      <button 
+                        onClick={() => setShowShareModal(true)}
+                        className="p-6 bg-slate-900 rounded-xl border border-slate-700 hover:border-cyan-500 transition-colors text-left group"
+                      >
                         <div className="text-2xl mb-2">🔗</div>
                         <div className="text-white font-medium">Share Link</div>
                         <div className="text-sm text-slate-400 mt-1">Copy link to share</div>
